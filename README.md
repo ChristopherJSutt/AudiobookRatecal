@@ -1,46 +1,39 @@
-[README-SHARING.txt](https://github.com/user-attachments/files/23295683/README-SHARING.txt)
-AUDIOBOOK ENGINEERING RATE CALCULATOR - SHARING GUIDE
-====================================================
+[SIMPLE-INSTRUCTIONS.txt](https://github.com/user-attachments/files/23295689/SIMPLE-INSTRUCTIONS.txt)
+🧮 AUDIOBOOK ENGINEERING RATE CALCULATOR
+========================================
 
-This calculator helps estimate rates for audiobook engineering work.
+📋 HOW TO USE THE CALCULATOR:
 
-OPTION 1: ALWAYS-ACTIVE LINK (RECOMMENDED)
-------------------------------------------
-Host this on GitHub Pages for a permanent link that always works:
+1. Fill in the boxes:
+   • Audiobook Title (optional)
+   • Number of Pickups
+   • Number of Editing Notes  
+   • Number of Chapters
+   • Book Runtime in hours
 
-1. Go to github.com and create a free account (if you don't have one)
-2. Create a new repository called "audiobook-calculator"
-3. Upload the "index.html" file
-4. Go to Settings > Pages
-5. Select "Deploy from a branch" and choose "main"
-6. Your calculator will be available at: 
-   https://[your-username].github.io/audiobook-calculator
+2. The calculator automatically shows you:
+   • How long the work will take
+   • Time breakdown for each task
+   • Your calculated rate
 
-OPTION 2: SIMPLE LOCAL SHARING
--------------------------------
-Share the calculator files directly with coworkers:
+3. Click "Show Equivalent PFH Rate" to see the per-finished-hour comparison
 
-FOR WINDOWS USERS:
-1. Send them the folder containing:
-   - index.html
-   - launch-calculator.bat
-2. Tell them to double-click "launch-calculator.bat"
-3. The calculator opens in their browser automatically!
+4. Click "Print Report" to print or save a professional quote
 
-FOR MAC USERS:
-1. Send them the folder containing:
-   - index.html  
-   - launch-calculator.command
-2. Tell them to double-click "launch-calculator.command"
-3. The calculator opens in their browser automatically!
+💡 TIPS:
+• The calculator works even without internet
+• All your information stays private on your computer
+• You can bookmark the calculator once it opens
+• If you close it, just double-click "launch-calculator" again
 
-SUPER SIMPLE INSTRUCTIONS FOR YOUR COWORKERS:
----------------------------------------------
-"Just double-click the file that says 'launch-calculator' and the calculator will open in your web browser. That's it!"
+❓ HAVING TROUBLE?
+• Make sure you unzipped the file first
+• If nothing happens, try double-clicking the "index.html" file instead
+• Contact me if you need help!
 
-ALTERNATIVE: EMAIL METHOD
--------------------------
-You can also just email them the "index.html" file and tell them:
-"Save this file to your computer, then double-click it to open the calculator."
+📁 WHAT'S IN THE FOLDER:
+• launch-calculator (the file you double-click)
+• index.html (the actual calculator)
+• README files (just extra info, you can ignore these)
 
-The calculator works completely offline - no internet required once they have the file! 
+🔒 PRIVACY: Everything runs on your computer - no data is sent anywhere! 
