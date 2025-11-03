@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audiobook Engineering Rate Calculator</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .calculator {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .results {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        .result-item {
+            margin-bottom: 15px;
+        }
+        .result-label {
+            font-weight: 500;
+            color: #555;
+        }
+        .result-value {
+            font-size: 1.2em;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        .note {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 20px;
+            font-style: italic;
+        }
+        .time-breakdown {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+        }
+        .print-button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .print-button:hover {
+            background-color: #34495e;
+        }
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .print-section {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                visibility: visible;
+            }
+            .print-section * {
+                visibility: visible;
+            }
+            .print-button {
+                display: none;
+            }
+            .print-section {
+                display: block !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <h1>Audiobook Engineering Rate Calculator</h1>
+        
+        <div class="input-group">
+            <label for="bookTitle">Audiobook Title</label>
+            <input type="text" id="bookTitle" placeholder="Enter audiobook title">
+        </div>
+
+        <div class="input-group">
+            <label for="pickupCount">Number of Pickups</label>
+            <input type="number" id="pickupCount" min="0" placeholder="Enter number of pickups">
+        </div>
+
+        <div class="input-group">
+            <label for="editingNotes">Number of Editing Notes</label>
+            <input type="number" id="editingNotes" min="0" placeholder="Enter number of editing notes">
+        </div>
+
+        <div class="input-group">
+            <label for="chapters">Number of Chapters</label>
+            <input type="number" id="chapters" min="0" placeholder="Enter number of chapters">
+        </div>
+
+        <div class="input-group">
+            <label for="runtime">Estimated Book Runtime (hours)</label>
+            <input type="number" id="runtime" min="0" step="0.1" placeholder="Enter book runtime in hours">
+        </div>
+
+        <div class="results">
+            <div class="result-item">
+                <div class="result-label">Estimated Work Time:</div>
+                <div class="result-value" id="workTime">-</div>
+            </div>
+            
+            <h3 style="margin-top: 20px; margin-bottom: 15px;">Time Breakdown</h3>
+            <div class="result-item">
+                <div class="result-label">Pickup Processing Time:</div>
+                <div class="result-value" id="pickupTime">-</div>
+            </div>
+            <div class="result-item">
+                <div class="result-label">Editing Notes Time:</div>
+                <div class="result-value" id="notesTime">-</div>
+            </div>
+            <div class="result-item">
+                <div class="result-label">Break Time:</div>
+                <div class="result-value" id="breakTime">-</div>
+            </div>
+            <div class="result-item">
+                <div class="result-label">Chapter Spacing & Filing:</div>
+                <div class="result-value" id="chapterTime">-</div>
+            </div>
+            <div class="result-item">
+                <div class="result-label">Calculated Rate:</div>
+                <div class="result-value" id="recommendedRate">-</div>
+            </div>
+        </div>
+
+        <button class="print-button" onclick="togglePFHRate()" style="margin-bottom: 10px;">Show Equivalent PFH Rate</button>
+        
+        <div id="pfhSection" style="display: none; margin-top: 20px; padding: 20px; background-color: #f8f9fa; border-radius: 5px;">
+            <div class="result-item">
+                <div class="result-label">Equivalent PFH Rate:</div>
+                <div class="result-value" id="pfhRate">-</div>
+            </div>
+        </div>
+
+        <div class="note">
+            Note: This calculator is based on the following assumptions:
+            <ul>
+                <li>Pickup Processing Times (estimated time for engineer to process):
+                    <ul>
+                        <li>10 pickups = 5 minutes processing time</li>
+                        <li>20 pickups = 10 minutes processing time</li>
+                        <li>40 pickups = 20 minutes processing time</li>
+                        <li>100 pickups = 60 minutes processing time</li>
+                    </ul>
+                </li>
+                <li>100 Editing Notes = 30-40 minutes (using 35 minutes as average)</li>
+                <li>$0.50 per chapter for spacing and filing</li>
+                <li>Equivalent PFH Rate based on $40 per finished hour for Pickups, Editing Notes, & File Spacing+Naming*</li>
+            </ul>
+        </div>
+
+        <button class="print-button" onclick="printReport()">Print Report</button>
+    </div>
+
+    <div class="print-section" style="display: none;">
+        <div style="max-width: 800px; margin: 0 auto; padding: 20px;">
+            <h1 style="text-align: center; color: #333; margin-bottom: 30px;">Audiobook Engineering Rate Report</h1>
+            <div id="printContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Constants for calculations
+        const NOTES_PER_HOUR = 171.43; // 100 notes in 35 minutes = 171.43 per hour
+        const PICKUP_RATE = 0.75; // $0.75 per pickup
+        const BREAK_MINUTES = 8;
+        const BREAK_THRESHOLD = 50;
+        const CHAPTER_RATE = 2;
+        const CHAPTER_SPACING_RATE = 0.5; // $0.50 per chapter
+        const PFH_RATE = 40;
+        const NOTE_RATE = 0.45; // $0.45 per note
+
+        function calculatePickupTime(pickupCount) {
+            let totalMinutes = 0;
+            
+            // Calculate time based on pickup rates
+            if (pickupCount >= 100) {
+                totalMinutes += Math.floor(pickupCount / 100) * 60;
+                pickupCount = pickupCount % 100;
+            }
+            if (pickupCount >= 40) {
+                totalMinutes += Math.floor(pickupCount / 40) * 20;
+                pickupCount = pickupCount % 40;
+            }
+            if (pickupCount >= 20) {
+                totalMinutes += Math.floor(pickupCount / 20) * 10;
+                pickupCount = pickupCount % 20;
+            }
+            if (pickupCount >= 10) {
+                totalMinutes += Math.floor(pickupCount / 10) * 5;
+                pickupCount = pickupCount % 10;
+            }
+            if (pickupCount > 0) {
+                totalMinutes += (pickupCount / 10) * 5; // Using the 10 pickups = 5 minutes rate
+            }
+            
+            // Add break time
+            const breaks = Math.floor(pickupCount / BREAK_THRESHOLD);
+            totalMinutes += breaks * BREAK_MINUTES;
+            
+            return totalMinutes;
+        }
+
+        function calculateRates() {
+            const bookTitle = document.getElementById('bookTitle').value;
+            const pickupCount = parseInt(document.getElementById('pickupCount').value) || 0;
+            const editingNotes = parseInt(document.getElementById('editingNotes').value) || 0;
+            const chapters = parseInt(document.getElementById('chapters').value) || 0;
+            const runtime = parseFloat(document.getElementById('runtime').value) || 0;
+
+            // Calculate times
+            const pickupTime = calculatePickupTime(pickupCount);
+            const notesTime = (editingNotes / NOTES_PER_HOUR) * 60;
+            const breakTime = Math.floor(pickupCount / BREAK_THRESHOLD) * BREAK_MINUTES;
+            const chapterTime = chapters; // 1 minute per chapter for spacing and filing
+
+            // Calculate total work time in hours
+            const totalWorkTime = (pickupTime + notesTime + chapterTime) / 60;
+
+            // Calculate PFH rate based on runtime only
+            const pfhRate = runtime * PFH_RATE;
+
+            // Calculate recommended rate based on established rates
+            const pickupRate = pickupCount * PICKUP_RATE; // $0.75 per pickup
+            const notesRate = editingNotes * NOTE_RATE; // $0.45 per note
+            const chapterSpacingRate = chapters * CHAPTER_SPACING_RATE; // $0.50 per chapter
+            const recommendedRate = pickupRate + chapterSpacingRate + notesRate;
+
+            // Update results
+            document.getElementById('workTime').textContent = `${totalWorkTime.toFixed(2)} hours`;
+            document.getElementById('recommendedRate').textContent = `$${recommendedRate.toFixed(2)}`;
+            document.getElementById('pfhRate').textContent = `$${pfhRate.toFixed(2)}`;
+
+            // Update time breakdown
+            document.getElementById('pickupTime').textContent = `${(pickupTime / 60).toFixed(2)} hours`;
+            document.getElementById('notesTime').textContent = `${(notesTime / 60).toFixed(2)} hours`;
+            document.getElementById('breakTime').textContent = `${(breakTime / 60).toFixed(2)} hours`;
+            document.getElementById('chapterTime').textContent = `${(chapterTime / 60).toFixed(2)} hours`;
+
+            // Update print content
+            updatePrintContent(bookTitle, pickupCount, editingNotes, chapters, runtime, 
+                             totalWorkTime, recommendedRate, pfhRate, 
+                             pickupTime, notesTime, breakTime, chapterTime);
+        }
+
+        function updatePrintContent(bookTitle, pickupCount, editingNotes, chapters, runtime,
+                                  totalWorkTime, recommendedRate, pfhRate,
+                                  pickupTime, notesTime, breakTime, chapterTime) {
+            const printContent = document.getElementById('printContent');
+            printContent.innerHTML = `
+                <div style="margin-bottom: 30px;">
+                    <h2 style="color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px;">${bookTitle || 'Untitled Audiobook'}</h2>
+                </div>
+                <div style="margin: 20px 0; background: #f8f9fa; padding: 20px; border-radius: 5px;">
+                    <h3 style="color: #2c3e50; margin-bottom: 15px;">Project Details</h3>
+                    <p><strong>Number of Pickups:</strong> ${pickupCount}</p>
+                    <p><strong>Number of Editing Notes:</strong> ${editingNotes}</p>
+                    <p><strong>Number of Chapters:</strong> ${chapters}</p>
+                    <p><strong>Estimated Book Runtime:</strong> ${runtime} hours</p>
+                </div>
+                <div style="margin: 20px 0; background: #f8f9fa; padding: 20px; border-radius: 5px;">
+                    <h3 style="color: #2c3e50; margin-bottom: 15px;">Rate Summary</h3>
+                    <p><strong>Estimated Work Time:</strong> ${totalWorkTime.toFixed(2)} hours</p>
+                    <p><strong>Calculated Rate:</strong> $${recommendedRate.toFixed(2)}</p>
+                </div>
+                <div style="margin: 20px 0; background: #f8f9fa; padding: 20px; border-radius: 5px;">
+                    <h3 style="color: #2c3e50; margin-bottom: 15px;">Time Breakdown</h3>
+                    <p><strong>Pickup Processing Time:</strong> ${(pickupTime / 60).toFixed(2)} hours</p>
+                    <p><strong>Editing Notes Time:</strong> ${(notesTime / 60).toFixed(2)} hours</p>
+                    <p><strong>Break Time:</strong> ${(breakTime / 60).toFixed(2)} hours</p>
+                    <p><strong>Chapter Spacing & Filing:</strong> ${(chapterTime / 60).toFixed(2)} hours</p>
+                </div>
+            `;
+        }
+
+        function printReport() {
+            // Make sure the print section is visible before printing
+            document.querySelector('.print-section').style.display = 'block';
+            window.print();
+            // Hide the print section after printing
+            setTimeout(() => {
+                document.querySelector('.print-section').style.display = 'none';
+            }, 100);
+        }
+
+        function togglePFHRate() {
+            const pfhSection = document.getElementById('pfhSection');
+            const button = event.target;
+            
+            if (pfhSection.style.display === 'none') {
+                pfhSection.style.display = 'block';
+                button.textContent = 'Hide Equivalent PFH Rate';
+            } else {
+                pfhSection.style.display = 'none';
+                button.textContent = 'Show Equivalent PFH Rate';
+            }
+        }
+
+        // Add event listeners to all inputs
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', calculateRates);
+        });
+    </script>
+</body>
+</html> 
